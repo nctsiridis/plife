@@ -1,0 +1,3 @@
+/Users/nicotsiridis/Dev/plife/build/CMakeFiles/plife.dir
+/Users/nicotsiridis/Dev/plife/build/CMakeFiles/edit_cache.dir
+/Users/nicotsiridis/Dev/plife/build/CMakeFiles/rebuild_cache.dir

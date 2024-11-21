@@ -1,0 +1,1 @@
+. "/Users/nicotsiridis/Dev/plife/build/conanrunenv-release-armv8.sh"

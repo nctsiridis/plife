@@ -1,0 +1,11 @@
+# Epochs
+100
+
+# Quantities
+20 20 20 20
+
+# Attraction 
+1 0 0 0
+0 1 0 0
+0 0 1 0
+0 0 0 1
