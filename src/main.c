@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,10 +9,13 @@
 #define HEIGHT 600
 #define MAX_PARTICLES 10000
 #define MAX_TYPES 100
+#define COLLISION_RADIUS 5.0f
+#define COLLISION_STRENGTH 0.5f
 
 typedef struct {
     float x, y;
     float vx, vy;
+    float ax, ay; // Added accelerations
     int type;
 } Particle;
 
@@ -214,6 +218,8 @@ void initialize_particles(Simulation *sim) {
             sim->particles[idx].y = rand() % HEIGHT;
             sim->particles[idx].vx = 0;
             sim->particles[idx].vy = 0;
+            sim->particles[idx].ax = 0; // Initialize acceleration
+            sim->particles[idx].ay = 0; // Initialize acceleration
             sim->particles[idx].type = type;
             idx++;
         }
@@ -242,10 +248,10 @@ void compute_forces(Simulation *sim) {
     Particle *particles = sim->particles;
     float **attraction = sim->attraction;
 
-    // Initialize velocities to zero for this iteration
+    // Initialize accelerations to zero for this iteration
     for (int i = 0; i < n; ++i) {
-        particles[i].vx = 0;
-        particles[i].vy = 0;
+        particles[i].ax = 0;
+        particles[i].ay = 0;
     }
 
     // Compute forces between particles
@@ -265,15 +271,29 @@ void compute_forces(Simulation *sim) {
 
             float distance = sqrtf(dx * dx + dy * dy) + 0.1f; // Avoid division by zero
 
+            // Compute attraction force
             float force = attraction[p1->type][p2->type] / distance;
             float fx = force * dx / distance;
             float fy = force * dy / distance;
 
-            // Update velocities (symmetrical)
-            p1->vx += fx;
-            p1->vy += fy;
-            p2->vx -= fx;
-            p2->vy -= fy;
+            // Update accelerations (symmetrical)
+            p1->ax += fx;
+            p1->ay += fy;
+            p2->ax -= fx;
+            p2->ay -= fy;
+
+            // Collision handling
+            if (distance < COLLISION_RADIUS) {
+                float collision_force = COLLISION_STRENGTH * (COLLISION_RADIUS - distance);
+                float fx_collision = collision_force * dx / distance;
+                float fy_collision = collision_force * dy / distance;
+
+                // Apply collision force
+                p1->ax -= fx_collision;
+                p1->ay -= fy_collision;
+                p2->ax += fx_collision;
+                p2->ay += fy_collision;
+            }
         }
     }
 }
@@ -283,6 +303,16 @@ void update_particles(Simulation *sim) {
     Particle *particles = sim->particles;
 
     for (int i = 0; i < n; ++i) {
+        // Update velocities with accelerations
+        particles[i].vx += particles[i].ax;
+        particles[i].vy += particles[i].ay;
+
+        // Apply damping to velocities
+        float damping = 0.99f;
+        particles[i].vx *= damping;
+        particles[i].vy *= damping;
+
+        // Update positions with velocities
         particles[i].x += particles[i].vx;
         particles[i].y += particles[i].vy;
 
@@ -306,4 +336,3 @@ void render_particles(SDL_Renderer *renderer, Simulation *sim) {
         SDL_RenderFillRect(renderer, &rect);
     }
 }
-
