@@ -1,5 +1,5 @@
 # Usage
-cd build
+cd build //
 ./plife simulation.txt
 
 # Notes
