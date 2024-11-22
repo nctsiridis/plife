@@ -1,4 +1,4 @@
-# Plife
+# PLife
 A particle life simulation written in C. Particle life aims to explore the cencept of emergence, eg complex structures can emerge from simple rules.
 
 ## Usage
