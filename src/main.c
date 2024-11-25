@@ -1,338 +1,248 @@
-
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
-#include <SDL2/SDL.h>
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+
+#define MAX_TYPES 10
 #define MAX_PARTICLES 10000
-#define MAX_TYPES 100
-#define COLLISION_RADIUS 5.0f
-#define COLLISION_STRENGTH 0.5f
 
 typedef struct {
     float x, y;
     float vx, vy;
-    float ax, ay; // Added accelerations
     int type;
 } Particle;
 
-typedef struct {
-    int num_particles;
-    Particle *particles;
-    int num_types;
-    int *quantities;
-    float **attraction;
-    SDL_Color *colors;
-} Simulation;
+int num_types;
+int quantities[MAX_TYPES];
+float attraction[MAX_TYPES][MAX_TYPES];
+float viscosity;
+float repulsion_strength;
+float interaction_radius;
+int epochs;
 
-int read_input_file(const char *filename, int *num_epochs, int **quantities, int *num_types, float ***attraction_matrix);
-void initialize_particles(Simulation *sim);
-void compute_forces(Simulation *sim);
-void update_particles(Simulation *sim);
-void render_particles(SDL_Renderer *renderer, Simulation *sim);
+Particle particles[MAX_PARTICLES];
+int total_particles = 0;
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Usage: %s input_file\n", argv[0]);
-        return 1;
-    }
-    // Read input file
-    int num_epochs;
-    int *quantities;
-    int num_types;
-    float **attraction_matrix;
-
-    if (!read_input_file(argv[1], &num_epochs, &quantities, &num_types, &attraction_matrix)) {
-        printf("Failed to read input file.\n");
-        return 1;
-    }
-
-    // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        printf("SDL Init Error: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    SDL_Window *win = SDL_CreateWindow("Particle Life Simulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-    if (!win) {
-        printf("SDL CreateWindow Error: %s\n", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_Renderer *renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer) {
-        SDL_DestroyWindow(win);
-        printf("SDL CreateRenderer Error: %s\n", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    // Initialize simulation
-    Simulation sim;
-    sim.num_types = num_types;
-    sim.quantities = quantities;
-    sim.attraction = attraction_matrix;
-    initialize_particles(&sim);
-
-    // Simulation loop
-    for (int epoch = 0; epoch < num_epochs; ++epoch) {
-        // Handle events
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                epoch = num_epochs; // Exit simulation
-            }
-        }
-
-        // Compute forces
-        compute_forces(&sim);
-
-        // Update particles
-        update_particles(&sim);
-
-        // Render particles
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear screen with black
-        SDL_RenderClear(renderer);
-        render_particles(renderer, &sim);
-        SDL_RenderPresent(renderer);
-
-        SDL_Delay(16); // Delay to control frame rate (approx 60 FPS)
-    }
-
-    // Cleanup
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(win);
-    SDL_Quit();
-
-    // Free memory
-    for (int i = 0; i < num_types; ++i) {
-        free(attraction_matrix[i]);
-    }
-    free(attraction_matrix);
-    free(quantities);
-    free(sim.particles);
-    free(sim.colors);
-
-    return 0;
-}
-
-int read_input_file(const char *filename, int *num_epochs, int **quantities, int *num_types, float ***attraction_matrix) {
+void read_input(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        printf("Cannot open input file %s\n", filename);
-        return 0;
+        fprintf(stderr, "Could not open input file.\n");
+        exit(EXIT_FAILURE);
     }
 
     char line[256];
-    int state = 0;
-    *num_types = 0;
-    int max_types = MAX_TYPES;
-
-    *quantities = (int *)malloc(sizeof(int) * max_types);
-    memset(*quantities, 0, sizeof(int) * max_types);
-
-    float **attraction = NULL;
-    int row = 0;
-
     while (fgets(line, sizeof(line), file)) {
-        if (line[0] == '#') {
-            if (strstr(line, "Epochs")) {
-                state = 1;
-            } else if (strstr(line, "Quantities")) {
-                state = 2;
-            } else if (strstr(line, "Attraction")) {
-                state = 3;
-                row = 0;
-            } else {
-                state = 0;
-            }
-            continue;
-        }
-
-        if (state == 1) {
-            // Read number of epochs
-            sscanf(line, "%d", num_epochs);
-            state = 0;
-        } else if (state == 2) {
-            // Read quantities
+        if (strncmp(line, "#Epochs", 7) == 0) {
+            fgets(line, sizeof(line), file);
+            epochs = atoi(line);
+        } else if (strncmp(line, "#Quantities", 11) == 0) {
+            fgets(line, sizeof(line), file);
             char *token = strtok(line, " ");
-            int idx = 0;
-            while (token) {
-                if (idx >= max_types) {
-                    max_types *= 2;
-                    *quantities = (int *)realloc(*quantities, sizeof(int) * max_types);
-                }
-                (*quantities)[idx++] = atoi(token);
+            num_types = 0;
+            while (token && num_types < MAX_TYPES) {
+                quantities[num_types++] = atoi(token);
                 token = strtok(NULL, " ");
             }
-            *num_types = idx;
-            state = 0;
-        } else if (state == 3) {
-            // Read attraction matrix
-            if (!attraction) {
-                // Allocate attraction matrix
-                attraction = (float **)malloc(sizeof(float *) * (*num_types));
-                for (int i = 0; i < *num_types; ++i) {
-                    attraction[i] = (float *)malloc(sizeof(float) * (*num_types));
+        } else if (strncmp(line, "#Attraction", 11) == 0) {
+            for (int i = 0; i < num_types; i++) {
+                fgets(line, sizeof(line), file);
+                char *token = strtok(line, " ");
+                for (int j = 0; j < num_types; j++) {
+                    attraction[i][j] = atof(token);
+                    token = strtok(NULL, " ");
                 }
             }
-            char *token = strtok(line, " ");
-            int idx = 0;
-            while (token) {
-                attraction[row][idx++] = atof(token);
-                token = strtok(NULL, " ");
-            }
-            row++;
-            if (row >= *num_types) {
-                state = 0;
-            }
+        } else if (strncmp(line, "#Viscosity", 10) == 0) {
+            fgets(line, sizeof(line), file);
+            viscosity = atof(line);
+        } else if (strncmp(line, "#RepulsionStrength", 18) == 0) {
+            fgets(line, sizeof(line), file);
+            repulsion_strength = atof(line);
+        } else if (strncmp(line, "#Radius", 7) == 0) {
+            fgets(line, sizeof(line), file);
+            interaction_radius = atof(line);
         }
     }
 
     fclose(file);
-
-    *attraction_matrix = attraction;
-
-    return 1;
 }
 
-void initialize_particles(Simulation *sim) {
-    // Calculate total number of particles
-    int total_particles = 0;
-    for (int i = 0; i < sim->num_types; ++i) {
-        total_particles += sim->quantities[i];
-    }
-    sim->num_particles = total_particles;
-    sim->particles = (Particle *)malloc(sizeof(Particle) * total_particles);
-
-    // Initialize particles
-    int idx = 0;
-    for (int type = 0; type < sim->num_types; ++type) {
-        int quantity = sim->quantities[type];
-        for (int i = 0; i < quantity; ++i) {
-            sim->particles[idx].x = rand() % WIDTH;
-            sim->particles[idx].y = rand() % HEIGHT;
-            sim->particles[idx].vx = 0;
-            sim->particles[idx].vy = 0;
-            sim->particles[idx].ax = 0; // Initialize acceleration
-            sim->particles[idx].ay = 0; // Initialize acceleration
-            sim->particles[idx].type = type;
-            idx++;
+void initialize_particles() {
+    srand(SDL_GetTicks());
+    total_particles = 0;
+    for (int t = 0; t < num_types; t++) {
+        for (int i = 0; i < quantities[t]; i++) {
+            particles[total_particles].x = rand() % WINDOW_WIDTH;
+            particles[total_particles].y = rand() % WINDOW_HEIGHT;
+            particles[total_particles].vx = 0.0f;
+            particles[total_particles].vy = 0.0f;
+            particles[total_particles].type = t;
+            total_particles++;
         }
-    }
-
-    // Initialize colors
-    sim->colors = (SDL_Color *)malloc(sizeof(SDL_Color) * sim->num_types);
-    for (int type = 0; type < sim->num_types; ++type) {
-        float attraction_sum = 0.0f;
-        for (int j = 0; j < sim->num_types; ++j) {
-            attraction_sum += sim->attraction[type][j];
-        }
-        // Map attraction_sum to a color
-        Uint8 r = (Uint8)((attraction_sum + type * 50) * 10) % 256;
-        Uint8 g = (Uint8)((attraction_sum + type * 80) * 20) % 256;
-        Uint8 b = (Uint8)((attraction_sum + type * 110) * 30) % 256;
-        sim->colors[type].r = r;
-        sim->colors[type].g = g;
-        sim->colors[type].b = b;
-        sim->colors[type].a = 255;
     }
 }
 
-void compute_forces(Simulation *sim) {
-    int n = sim->num_particles;
-    Particle *particles = sim->particles;
-    float **attraction = sim->attraction;
+void update_particles() {
+    float radius2 = interaction_radius * interaction_radius;
+    float epsilon = 0.01f; // Small value to prevent singularity
+    float max_force = 10.0f; // Maximum force cap
+    float max_velocity = 5.0f; // Maximum velocity cap
 
-    // Initialize accelerations to zero for this iteration
-    for (int i = 0; i < n; ++i) {
-        particles[i].ax = 0;
-        particles[i].ay = 0;
-    }
-
-    // Compute forces between particles
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < total_particles; i++) {
         Particle *p1 = &particles[i];
-        for (int j = i + 1; j < n; ++j) {
-            Particle *p2 = &particles[j];
+        float fx = 0.0f, fy = 0.0f;
 
+        for (int j = 0; j < total_particles; j++) {
+            if (i == j) continue;
+
+            Particle *p2 = &particles[j];
             float dx = p2->x - p1->x;
             float dy = p2->y - p1->y;
 
-            // Apply periodic boundary conditions
-            if (dx > WIDTH / 2) dx -= WIDTH;
-            if (dx < -WIDTH / 2) dx += WIDTH;
-            if (dy > HEIGHT / 2) dy -= HEIGHT;
-            if (dy < -HEIGHT / 2) dy += HEIGHT;
+            // Handle periodic boundary conditions
+            if (dx > WINDOW_WIDTH / 2) dx -= WINDOW_WIDTH;
+            if (dx < -WINDOW_WIDTH / 2) dx += WINDOW_WIDTH;
+            if (dy > WINDOW_HEIGHT / 2) dy -= WINDOW_HEIGHT;
+            if (dy < -WINDOW_HEIGHT / 2) dy += WINDOW_HEIGHT;
 
-            float distance = sqrtf(dx * dx + dy * dy) + 0.1f; // Avoid division by zero
+            float dist2 = dx * dx + dy * dy;
+            if (dist2 < radius2 && dist2 > 0.0001f) {
+                // Add epsilon to prevent division by zero
+                float dist2_softened = dist2 + epsilon;
+                float dist = sqrtf(dist2_softened);
 
-            // Compute attraction force
-            float force = attraction[p1->type][p2->type] / distance;
-            float fx = force * dx / distance;
-            float fy = force * dy / distance;
+                // Compute force with softened distance
+                float force = (attraction[p1->type][p2->type]) / dist - (repulsion_strength / dist2_softened);
 
-            // Update accelerations (symmetrical)
-            p1->ax += fx;
-            p1->ay += fy;
-            p2->ax -= fx;
-            p2->ay -= fy;
+                // Cap the force magnitude
+                if (force > max_force) force = max_force;
+                if (force < -max_force) force = -max_force;
 
-            // Collision handling
-            if (distance < COLLISION_RADIUS) {
-                float collision_force = COLLISION_STRENGTH * (COLLISION_RADIUS - distance);
-                float fx_collision = collision_force * dx / distance;
-                float fy_collision = collision_force * dy / distance;
-
-                // Apply collision force
-                p1->ax -= fx_collision;
-                p1->ay -= fy_collision;
-                p2->ax += fx_collision;
-                p2->ay += fy_collision;
+                fx += force * dx / dist;
+                fy += force * dy / dist;
             }
         }
+
+        // Apply viscosity
+        p1->vx = (p1->vx + fx) * (1.0f - viscosity);
+        p1->vy = (p1->vy + fy) * (1.0f - viscosity);
+
+        // Clamp velocity
+        float speed = sqrtf(p1->vx * p1->vx + p1->vy * p1->vy);
+        if (speed > max_velocity) {
+            p1->vx = (p1->vx / speed) * max_velocity;
+            p1->vy = (p1->vy / speed) * max_velocity;
+        }
     }
-}
 
-void update_particles(Simulation *sim) {
-    int n = sim->num_particles;
-    Particle *particles = sim->particles;
-
-    for (int i = 0; i < n; ++i) {
-        // Update velocities with accelerations
-        particles[i].vx += particles[i].ax;
-        particles[i].vy += particles[i].ay;
-
-        // Apply damping to velocities
-        float damping = 0.99f;
-        particles[i].vx *= damping;
-        particles[i].vy *= damping;
-
-        // Update positions with velocities
-        particles[i].x += particles[i].vx;
-        particles[i].y += particles[i].vy;
-
-        // Apply periodic boundary conditions
-        if (particles[i].x < 0) particles[i].x += WIDTH;
-        if (particles[i].x >= WIDTH) particles[i].x -= WIDTH;
-        if (particles[i].y < 0) particles[i].y += HEIGHT;
-        if (particles[i].y >= HEIGHT) particles[i].y -= HEIGHT;
-    }
-}
-
-void render_particles(SDL_Renderer *renderer, Simulation *sim) {
-    int n = sim->num_particles;
-    Particle *particles = sim->particles;
-    SDL_Color *colors = sim->colors;
-
-    for (int i = 0; i < n; ++i) {
+    // Update positions
+    for (int i = 0; i < total_particles; i++) {
         Particle *p = &particles[i];
-        SDL_SetRenderDrawColor(renderer, colors[p->type].r, colors[p->type].g, colors[p->type].b, 255);
-        SDL_Rect rect = {(int)p->x, (int)p->y, 3, 3};
+        p->x += p->vx;
+        p->y += p->vy;
+
+        // Wrap around screen edges
+        if (p->x < 0) p->x += WINDOW_WIDTH;
+        if (p->x >= WINDOW_WIDTH) p->x -= WINDOW_WIDTH;
+        if (p->y < 0) p->y += WINDOW_HEIGHT;
+        if (p->y >= WINDOW_HEIGHT) p->y -= WINDOW_HEIGHT;
+    }
+}
+
+void render_particles(SDL_Renderer *renderer) {
+    // Clear screen
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    SDL_RenderClear(renderer);
+
+    // Define colors for each particle type
+    SDL_Color colors[MAX_TYPES] = {
+        {255, 0, 0, 255},     // Red
+        {0, 255, 0, 255},     // Green
+        {0, 0, 255, 255},     // Blue
+        {255, 255, 0, 255},   // Yellow
+        {255, 0, 255, 255},   // Magenta
+        {0, 255, 255, 255},   // Cyan
+        {255, 165, 0, 255},   // Orange
+        {128, 0, 128, 255},   // Purple
+        {0, 128, 128, 255},   // Teal
+        {128, 128, 0, 255}    // Olive
+    };
+
+    for (int i = 0; i < total_particles; i++) {
+        Particle *p = &particles[i];
+        SDL_SetRenderDrawColor(renderer, colors[p->type % MAX_TYPES].r, colors[p->type % MAX_TYPES].g, colors[p->type % MAX_TYPES].b, 255);
+        SDL_Rect rect = {(int)p->x, (int)p->y, 2, 2};
         SDL_RenderFillRect(renderer, &rect);
     }
+
+    SDL_RenderPresent(renderer);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s input_file.txt\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    read_input(argv[1]);
+    initialize_particles();
+
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        fprintf(stderr, "Could not initialize SDL2: %s\n", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
+    SDL_Window *window = SDL_CreateWindow("Particle Life Simulation",
+                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          WINDOW_WIDTH, WINDOW_HEIGHT,
+                                          SDL_WINDOW_SHOWN);
+
+    if (!window) {
+        fprintf(stderr, "Could not create window: %s\n", SDL_GetError());
+        SDL_Quit();
+        return EXIT_FAILURE;
+    }
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    if (!renderer) {
+        fprintf(stderr, "Could not create renderer: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return EXIT_FAILURE;
+    }
+
+    int running = 1;
+    SDL_Event event;
+    int frame = 0;
+
+    // Simulation substeps for better stability
+    int substeps = 4;
+    int substep_delay = 4; // 16 ms / 4 substeps
+
+    while (running && frame < epochs) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT)
+                running = 0;
+        }
+
+        // Perform substeps
+        for (int s = 0; s < substeps; s++) {
+            update_particles();
+        }
+
+        render_particles(renderer);
+
+        SDL_Delay(substep_delay); // Adjusted delay for substeps
+        frame++;
+    }
+
+    // Cleanup
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return EXIT_SUCCESS;
 }
