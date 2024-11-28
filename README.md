@@ -10,6 +10,13 @@ If you wish to modify the particle simulation code (`src/main.c`), you must set 
 
 Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` based on testing.
 
+- `Epochs`: Number of simulation frames to render
+- `Quantities`: Number of each particle type in simulation
+- `Attraction`: Attraction matrix, in same order as quantities are defined
+- `Viscosity`: Slows particles down as they move to prevent chaos
+- `Radius`: How close particles need to be to interact
+- `RepulsionStrength`: How much particles push back on eachother when getting too close (to minimize particle overlap)
+
 Example `simulation.txt`:
 
 ```bash
@@ -23,7 +30,7 @@ Example `simulation.txt`:
 #Viscosity
 0.4
 #Radius
-100
+50
 #RepulsionStrength
 4.0
 ```
