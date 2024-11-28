@@ -1,12 +1,32 @@
 # PLife
 
-A particle life simulation written in C. Particle Life explores the concept of emergence, where complex structures arise from simple rules.
+A particle simulation written in C. Particle Life explores the concept of emergence, where complex structures arise from simple rules. Inspired by Tom Mohr's [video](https://www.youtube.com/watch?v=p4YirERTVF0&t=393s) on Particle Life simulations.
 
 ## Setting up Conan
 
-If you wish to modify the particle simulation code itself (`src/main.c`), you must set up your Conan environment or link dependencies manually. Conan is a package manager for C/C++ and is used in this project to resolve the SDL2 and ZLIB dependencies. Please refer to the [official documentation](https://docs.conan.io/2/index.html).
+If you wish to modify the particle simulation code (`src/main.c`), you must set up your Conan environment or link dependencies manually. Conan is a package manager for C/C++ and is used in this project to resolve the SDL2 and ZLIB dependencies. Please refer to the [official documentation](https://docs.conan.io/2/index.html).
 
-## Usage
+## Basic Usage (without runner)
+
+Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` based on testing.
+
+### Example `simulation.txt`
+
+```bash
+#Epochs
+10
+#Quantities
+50 50
+#Attraction
+0.5 -0.2
+-0.3 0.8
+#Viscosity
+0.4
+#Radius
+10
+#RepulsionStrength
+4.0
+```
 
 ```bash
 cd build
@@ -15,7 +35,7 @@ cd build
 
 ## Using `runner.py`
 
-The `runner.py` script automates the creation of `simulation.txt` with customizable attributes and runs the PLife simulation.
+The `runner.py` script automates the creation of `simulation.txt` with customizable attributes and runs the PLife simulation. Currently epochs, viscocity, radius, and repulsion strength cannot be modified with flags directly. If you wish to modify these, do so in the `runner.py` script directly.
 
 ### Basic Usage
 
@@ -35,7 +55,7 @@ python3 runner.py -s 5 -n 100
 ### Optional Flags
 
 - `-a`, `--assortativity`: `high` or `low`.
-- `-d`, `--degree`: Degree distribution (integer).
+- `-d`, `--degree`: Degree distribution (integer between 1 and size of matrix `-s`).
 - `-c`, `--clustering`: Clustering coefficient (0 to 1).
 - `-k`, `--skew-symmetry`: `high`, `medium`, or `low`.
 - `-r`, `--reciprocity`: Reciprocity level (0 to 1).
@@ -61,7 +81,9 @@ python3 runner.py -s 5 -n 100 -p 0.2
 python3 runner.py -s 5 -n 100 -k high -r 0.7
 ```
 
-### Notes on Combining Attributes
+### Combining Attributes
+
+You can combine any number of attributes. However, some attributes will contradict each other, so note the following conditions.
 
 - **Sparsity and Degree Distribution**: If both are specified, degree distribution takes precedence.
 - **Reciprocity and Skew Symmetry**: Reciprocity is applied after skew symmetry and can override it.
