@@ -63,7 +63,7 @@ python3 runner.py -s 5 -n 100 -k high -r 0.7
 
 ### Combining Attributes
 
-You can combine any number of attributes, but note the following stipulations.
+You can combine any number of attributes. However, some attributes will contradict each other, so note the following conditions.
 
 - **Sparsity and Degree Distribution**: If both are specified, degree distribution takes precedence.
 - **Reciprocity and Skew Symmetry**: Reciprocity is applied after skew symmetry and can override it.
