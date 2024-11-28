@@ -8,7 +8,7 @@ If you wish to modify the particle simulation code itself (`src/main.c`), you mu
 
 ## Basic Usage (without runner)
 
-Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`.
+Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscocity of `0.4` and a repulsion strength of `4.0` based on testing.
 
 ### Example `simulation.txt`
 
@@ -21,11 +21,11 @@ Modify `simulation.txt` to configure simulation properties. Ensure that if you s
 0.5 -0.2
 -0.3 0.8
 #Viscosity
-0.1
+0.4
 #Radius
 10
 #RepulsionStrength
-2.0
+4.0
 ```
 
 ```bash
