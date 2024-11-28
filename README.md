@@ -8,6 +8,26 @@ If you wish to modify the particle simulation code itself (`src/main.c`), you mu
 
 ## Usage
 
+Modify `simulation.txt` to specify the simulation configuration. Ensure that if you specify `n` "\#Quantities", the "\#Attraction" matrix is `n x n`.
+
+### Example
+
+'''bash
+\#Epochs
+10
+\#Quantities
+50 50
+\#Attraction
+0.5 -0.2
+-0.3 0.8
+\#Viscosity
+0.1
+\#Radius
+10
+\#RepulsionStrength
+2.0
+'''
+
 ```bash
 cd build
 ./plife simulation.txt
