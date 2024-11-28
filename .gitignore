@@ -1,0 +1,20 @@
+# Ignore the virtual environment directory
+plife-py3venv/
+
+# Ignore all content in the build directory
+build/*
+
+# But keep the simulation.txt and plife executable
+!build/simulation.txt
+!build/plife
+
+# Ignore CMakeUserPresets
+CMakeUserPresets.json
+
+# Conan specific files
+.conan/
+*.conan_data
+
+# Ignore specific script executions
+*.sh
+!*.sh that are needed globally
