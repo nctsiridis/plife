@@ -8,6 +8,11 @@ If you wish to modify the particle simulation code (`src/main.c`), you must set 
 
 ## Basic Usage (without runner)
 
+```bash
+cd build
+./plife simulation.txt
+```
+
 Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` based on testing.
 
 - `Epochs`: Number of simulation frames to render
@@ -33,11 +38,6 @@ Example `simulation.txt`:
 50
 #RepulsionStrength
 4.0
-```
-
-```bash
-cd build
-./plife simulation.txt
 ```
 
 ## Using `runner.py`
