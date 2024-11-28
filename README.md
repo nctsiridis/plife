@@ -4,7 +4,7 @@ A particle life simulation written in C. Particle Life explores the concept of e
 
 ## Setting up Conan
 
-If you wish to modify the particle simulation code itself (`src/main.c`), you must set up your Conan environment or link dependencies manually. Conan is a package manager for C/C++ and is used in this project to resolve the SDL2 and ZLIB dependencies. Please refer to the [official documentation](https://docs.conan.io/2/index.html).
+If you wish to modify the particle simulation code (`src/main.c`), you must set up your Conan environment or link dependencies manually. Conan is a package manager for C/C++ and is used in this project to resolve the SDL2 and ZLIB dependencies. Please refer to the [official documentation](https://docs.conan.io/2/index.html).
 
 ## Basic Usage (without runner)
 
