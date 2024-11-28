@@ -23,7 +23,7 @@ Example `simulation.txt`:
 #Viscosity
 0.4
 #Radius
-10
+100
 #RepulsionStrength
 4.0
 ```
