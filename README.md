@@ -6,13 +6,13 @@ A particle life simulation written in C. Particle Life explores the concept of e
 
 If you wish to modify the particle simulation code itself (`src/main.c`), you must set up your Conan environment or link dependencies manually. Conan is a package manager for C/C++ and is used in this project to resolve the SDL2 and ZLIB dependencies. Please refer to the [official documentation](https://docs.conan.io/2/index.html).
 
-## Usage
+## Basic Usage (without runner)
 
 Modify `simulation.txt` to specify the simulation configuration. Ensure that if you specify `n` "\#Quantities", the "\#Attraction" matrix is `n x n`.
 
 ### Example
 
-'''bash
+```bash
 \#Epochs
 10
 \#Quantities
@@ -26,7 +26,7 @@ Modify `simulation.txt` to specify the simulation configuration. Ensure that if 
 10
 \#RepulsionStrength
 2.0
-'''
+```
 
 ```bash
 cd build
