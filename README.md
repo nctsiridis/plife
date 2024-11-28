@@ -35,7 +35,7 @@ python3 runner.py -s 5 -n 100
 ### Optional Flags
 
 - `-a`, `--assortativity`: `high` or `low`.
-- `-d`, `--degree`: Degree distribution (integer).
+- `-d`, `--degree`: Degree distribution (integer between 1 and size of matrix `-s`).
 - `-c`, `--clustering`: Clustering coefficient (0 to 1).
 - `-k`, `--skew-symmetry`: `high`, `medium`, or `low`.
 - `-r`, `--reciprocity`: Reciprocity level (0 to 1).
