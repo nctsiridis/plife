@@ -8,7 +8,7 @@ If you wish to modify the particle simulation code itself (`src/main.c`), you mu
 
 ## Basic Usage (without runner)
 
-Modify `simulation.txt` to specify configure simulation properties. Ensure that if you specify `n` "\#Quantities", the "\#Attraction" matrix is `n x n`.
+Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` "\#Quantities", the "\#Attraction" matrix is `n x n`.
 
 ### Example `simulation.txt`
 
