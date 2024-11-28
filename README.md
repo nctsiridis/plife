@@ -1,6 +1,6 @@
 # PLife
 
-A particle life simulation written in C. Particle Life explores the concept of emergence, where complex structures arise from simple rules. Inspired by Tom Mohr's [video](https://www.youtube.com/watch?v=p4YirERTVF0&t=393s)
+A particle life simulation written in C. Particle Life explores the concept of emergence, where complex structures arise from simple rules. Inspired by Tom Mohr's [video](https://www.youtube.com/watch?v=p4YirERTVF0&t=393s) on Particle Life simulations.
 
 ## Setting up Conan
 
