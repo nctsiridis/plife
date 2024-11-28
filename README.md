@@ -10,21 +10,21 @@ If you wish to modify the particle simulation code itself (`src/main.c`), you mu
 
 Modify `simulation.txt` to specify the simulation configuration. Ensure that if you specify `n` "\#Quantities", the "\#Attraction" matrix is `n x n`.
 
-### Example
+### Example `simulation.txt`
 
 ```bash
-\#Epochs
+#Epochs
 10
-\#Quantities
+#Quantities
 50 50
-\#Attraction
+#Attraction
 0.5 -0.2
 -0.3 0.8
-\#Viscosity
+#Viscosity
 0.1
-\#Radius
+#Radius
 10
-\#RepulsionStrength
+#RepulsionStrength
 2.0
 ```
 
