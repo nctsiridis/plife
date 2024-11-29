@@ -42,7 +42,7 @@ Example `simulation.txt`:
 
 The `runner.py` script automates the creation of `simulation.txt` with customizable attributes and runs the PLife simulation. Currently epochs, viscocity, radius, and repulsion strength cannot be modified with flags directly. If you wish to modify these, do so in the `runner.py` script directly. `runner.py` only supports creation of uniform particle quantities. 
 
-*Note that the `plife` executable is still required*.
+*Note that the `plife` executable is still required to use the runner*.
 
 ### Basic Usage
 
