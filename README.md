@@ -4,6 +4,8 @@ A particle simulation written in C. Particle Life explores the concept of emerge
 
 ## Basic Usage (without runner)
 
+If your architecture matches arm64, the provided executable may work. Otherwise, you will need to compile the program in the provided build folder. We recommend using Conan + Cmake, files for which are provided.
+
 ```bash
 cd build
 ./plife simulation.txt
