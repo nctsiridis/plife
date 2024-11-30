@@ -24,7 +24,7 @@ Example `simulation.txt`:
 
 ```bash
 #Epochs
-10
+1000
 #Quantities
 50 50
 #Attraction
