@@ -73,19 +73,19 @@ python3 runner.py -s 5 -n 200
 #### High Assortativity
 
 ```bash
-python3 runner.py -s 5 -n 100 -a high
+python3 runner.py -s 5 -n 200 -a high
 ```
 
 #### Specifying Sparsity
 
 ```bash
-python3 runner.py -s 5 -n 100 -p 0.2
+python3 runner.py -s 5 -n 200 -p 0.2
 ```
 
 #### Applying Skew Symmetry and Reciprocity
 
 ```bash
-python3 runner.py -s 5 -n 100 -k high -r 0.7
+python3 runner.py -s 5 -n 200 -k high -r 0.7
 ```
 
 ### Combining Attributes
