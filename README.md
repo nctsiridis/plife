@@ -7,8 +7,7 @@ A particle simulation written in C. Particle Life explores the concept of emerge
 The provided executable may not work on your architecture. If this is the case, you will need to compile the program in the provided build folder. We recommend using Conan + CMake, config files for which are provided.
 
 ```bash
-cd build
-./plife simulation.txt
+./build/plife simulation.txt
 ```
 
 Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` based on testing.
