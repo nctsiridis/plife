@@ -56,7 +56,7 @@ python3 runner.py -s SIZE -n NUMBER
 Example:
 
 ```bash
-python3 runner.py -s 5 -n 100
+python3 runner.py -s 5 -n 200
 ```
 
 ### Optional Flags
