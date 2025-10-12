@@ -2,15 +2,10 @@
 
 A particle simulation written in C. Particle Life explores the concept of emergence, where complex structures arise from simple rules. Inspired by Tom Mohr's [video](https://www.youtube.com/watch?v=p4YirERTVF0&t=393s) on Particle Life simulations.
 
-Demo Video (use `cool_configs/interesting_dynamics.txt` to recreate):
+### Demo Video  
+Use `cool_configs/interesting_dynamics.txt` to recreate this setup:
 
-<iframe width="560" height="315"
-  src="https://www.youtube.com/embed/1JyO9iad2mg"
-  title="Particle Life! – YouTube video"
-  frameborder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowfullscreen>
-</iframe>
+[![Watch the demo](https://img.youtube.com/vi/1JyO9iad2mg/0.jpg)](https://youtu.be/1JyO9iad2mg)
 
 ## Basic Usage (without runner)
 
