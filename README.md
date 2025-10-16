@@ -6,7 +6,7 @@ A particle simulation written in C. Particle Life explores the concept of emerge
 
 [![Watch the demo](https://img.youtube.com/vi/1JyO9iad2mg/0.jpg)](https://youtu.be/1JyO9iad2mg)
 
-(Recreate with `cool_configs/interesting_dynamics.txt`)
+(config file for this demo: `cool_configs/interesting_dynamics.txt`)
 
 
 ## Basic Usage (without runner)
