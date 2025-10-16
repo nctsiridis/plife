@@ -11,6 +11,8 @@ A particle simulation written in C. Particle Life explores the concept of emerge
 
 ## Basic Usage (without runner)
 
+Note: Provided executable is for ARM64. For other architectures, recompile `src/main.c`.
+
 ```bash
 ./build/plife simulation.txt
 ```
