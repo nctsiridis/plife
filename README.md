@@ -9,13 +9,11 @@ Use `cool_configs/interesting_dynamics.txt` to recreate this setup:
 
 ## Basic Usage (without runner)
 
-The provided executable may not work on your architecture. If this is the case, you will need to compile the program in the provided build folder. We recommend using Conan + CMake, config files for which are provided.
-
 ```bash
 ./build/plife simulation.txt
 ```
 
-Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` based on testing.
+Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` for best results.
 
 - `Epochs`: Number of simulation frames to render
 - `Quantities`: Number of each particle type in simulation
