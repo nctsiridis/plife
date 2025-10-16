@@ -11,11 +11,11 @@ A particle simulation written in C. Particle Life explores the concept of emerge
 
 ## Basic Usage (without runner)
 
-Note: Provided executable is for ARM64. For other architectures, recompile `src/main.c`.
-
 ```bash
 ./build/plife simulation.txt
 ```
+
+Note: Provided executable is for ARM64. For other architectures, recompile `src/main.c`.
 
 Modify `simulation.txt` to configure simulation properties. Ensure that if you specify `n` quantities, the attraction matrix is `n x n`. We recommend a viscosity of `0.4` and a repulsion strength of `4.0` for best results.
 
