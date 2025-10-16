@@ -3,9 +3,11 @@
 A particle simulation written in C. Particle Life explores the concept of emergence, where complex structures arise from simple rules. Inspired by Tom Mohr's [video](https://www.youtube.com/watch?v=p4YirERTVF0&t=393s) on Particle Life simulations.
 
 ### Demo Video  
-Use `cool_configs/interesting_dynamics.txt` to recreate this setup:
 
 [![Watch the demo](https://img.youtube.com/vi/1JyO9iad2mg/0.jpg)](https://youtu.be/1JyO9iad2mg)
+
+(Recreate with `cool_configs/interesting_dynamics.txt`)
+
 
 ## Basic Usage (without runner)
 
